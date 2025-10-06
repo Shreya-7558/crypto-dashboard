@@ -44,7 +44,48 @@ export default function Home({ coins, error }) {
   const filteredSorted = useMemo(() => {
     let arr = Array.isArray(list) ? [...list] : []
     const q = (search || '').trim().toLowerCase()
-    if (q) arr = arr.filter(c => c.name.toLowerCase().includes(q) || c.symbol.toLowerCase().includes(q))
+    
+    // Debug logging
+    if (q && arr.length > 0) {
+      console.log('Search query:', q)
+      console.log('Sample coin data:', arr[0])
+      console.log('First 3 coin names:', arr.slice(0, 3).map(c => ({ 
+        name: c?.name, 
+        symbol: c?.symbol,
+        id: c?.id 
+      })))
+    }
+    
+    if (q) {
+      const originalLength = arr.length
+      arr = arr.filter(c => {
+        if (!c) return false
+        
+        const name = String(c.name || '').toLowerCase()
+        const symbol = String(c.symbol || '').toLowerCase()
+        const id = String(c.id || '').toLowerCase()
+        
+        const matches = name.includes(q) || symbol.includes(q) || id.includes(q)
+        
+        // Debug each coin being checked
+        if (q === 'bnb') {
+          console.log('Checking coin:', { 
+            name, 
+            symbol, 
+            id,
+            query: q,
+            nameMatch: name.includes(q),
+            symbolMatch: symbol.includes(q),
+            idMatch: id.includes(q),
+            matches 
+          })
+        }
+        
+        return matches
+      })
+      console.log(`Filtered from ${originalLength} to ${arr.length} coins`)
+    }
+    
     const { key, dir } = sort || { key: 'market_cap', dir: 'desc' }
     arr.sort((a, b) => {
       const va = a[key] ?? 0
@@ -79,9 +120,20 @@ export default function Home({ coins, error }) {
         onSort={(v) => dispatch(setSort(v))}
       />
 
-      {filteredSorted.length === 0 && !error ? (
+      {/* Debug info */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="text-xs text-slate-400 mb-2">
+          Total coins: {list.length} | Filtered: {filteredSorted.length} | Search: "{search}"
+        </div>
+      )}
+
+      {list.length === 0 && !error ? (
         <div className="text-center py-8 text-slate-500">
-          No coins found. Try adjusting your search.
+          Loading coin data...
+        </div>
+      ) : filteredSorted.length === 0 && search ? (
+        <div className="text-center py-8 text-slate-500">
+          No coins found matching "{search}". Try a different search term.
         </div>
       ) : (
         <CoinTable
