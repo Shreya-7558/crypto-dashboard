@@ -16,14 +16,14 @@ export async function getServerSideProps() {
   }
 }
 
-export default function Home({ coins }) {
+export default function Home({ coins, error }) {
   const dispatch = useDispatch()
   const { search, sort } = useSelector(s => s.coins)
   const favorites = useSelector(s => s.favorites.ids)
 
   useEffect(() => {
     // hydrate list from SSR
-    dispatch(hydrateList(coins))
+    dispatch(hydrateList(coins || []))
     // load favorites from localStorage
     if (typeof window !== 'undefined') {
       try {
@@ -58,6 +58,20 @@ export default function Home({ coins }) {
     <div className="container py-6">
       <h1 className="text-2xl font-bold mb-4">Crypto Dashboard</h1>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded mb-4">
+          <p className="font-semibold">Error loading coin data:</p>
+          <p className="text-sm">{error}</p>
+          <p className="text-xs mt-2">
+            CoinGecko API may require an API key. Get one at{' '}
+            <a href="https://www.coingecko.com/en/api" target="_blank" rel="noopener noreferrer" className="underline">
+              coingecko.com/en/api
+            </a>
+            {' '}and add it to your .env.local file as COINGECKO_API_KEY
+          </p>
+        </div>
+      )}
+
       <SearchSortBar
         search={search}
         onSearch={(v) => dispatch(setSearch(v))}
@@ -65,11 +79,17 @@ export default function Home({ coins }) {
         onSort={(v) => dispatch(setSort(v))}
       />
 
-      <CoinTable
-        coins={filteredSorted}
-        favorites={favorites}
-        onToggleFavorite={(id) => dispatch(toggleFavorite(id))}
-      />
+      {filteredSorted.length === 0 && !error ? (
+        <div className="text-center py-8 text-slate-500">
+          No coins found. Try adjusting your search.
+        </div>
+      ) : (
+        <CoinTable
+          coins={filteredSorted}
+          favorites={favorites}
+          onToggleFavorite={(id) => dispatch(toggleFavorite(id))}
+        />
+      )}
 
       <h2 className="text-xl font-semibold mt-8 mb-3">Realtime Feed (Finnhub)</h2>
       <WebsocketPanel />

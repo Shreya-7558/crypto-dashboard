@@ -12,8 +12,11 @@ A practical dashboard showing top cryptocurrencies (CoinGecko) with SSR, favorit
 ## Quick Start
 1. Copy `.env.example` to `.env.local` and set:
 ```
-NEXT_PUBLIC_FINNHUB_TOKEN=YOUR_TOKEN
+NEXT_PUBLIC_FINNHUB_TOKEN=YOUR_FINNHUB_TOKEN
+COINGECKO_API_KEY=YOUR_COINGECKO_API_KEY
 ```
+**Important:** CoinGecko now requires an API key. Get a free demo key at https://www.coingecko.com/en/api
+
 2. Install dependencies:
 ```
 npm install
@@ -77,7 +80,7 @@ Get-ChildItem -Path . -Exclude $exclude | Compress-Archive -DestinationPath cryp
 ```
 
 ## Notes
-- CoinGecko APIs are public but rate-limited; avoid excessive refresh.
+- **CoinGecko API Key Required:** CoinGecko now requires an API key for all requests. Get a free demo key at https://www.coingecko.com/en/api and add it to your `.env.local` file as `COINGECKO_API_KEY`.
 - Finnhub requires an API token. Get one at https://finnhub.io
 - Favorites stored in `localStorage`.
 

@@ -13,6 +13,14 @@ function formatPercent(n) {
 }
 
 export default function CoinTable({ coins, favorites, onToggleFavorite }) {
+  if (!coins || coins.length === 0) {
+    return (
+      <div className="text-center py-8 text-slate-400">
+        No coin data available
+      </div>
+    )
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full border-separate border-spacing-y-2">
